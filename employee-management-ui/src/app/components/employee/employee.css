@@ -1,0 +1,45 @@
+.employee-container {
+  padding: 30px;
+}
+
+.employee-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.employee-header button {
+  padding: 10px 20px;
+  cursor: pointer;
+}
+
+.profile-card {
+  width: 450px;
+  padding: 25px;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+}
+
+.field {
+  margin-bottom: 15px;
+}
+
+.field label {
+  display: block;
+  margin-bottom: 5px;
+}
+
+.field input {
+  width: 100%;
+  padding: 9px;
+  box-sizing: border-box;
+}
+
+.profile-card button {
+  padding: 10px 20px;
+  cursor: pointer;
+}
+
+.error {
+  color: red;
+}

@@ -1,0 +1,86 @@
+<div class="employee-container">
+
+  <div class="employee-header">
+
+    <div>
+      <h1>Employee Dashboard</h1>
+      <p>Welcome, {{ username }}</p>
+    </div>
+
+    <button
+      type="button"
+      (click)="logout()">
+      Logout
+    </button>
+
+  </div>
+
+  <hr>
+
+  <p *ngIf="errorMessage" class="error">
+    {{ errorMessage }}
+  </p>
+
+  <div
+    *ngIf="employee"
+    class="profile-card">
+
+    <h2>My Profile</h2>
+
+    <div class="field">
+      <label>Employee ID</label>
+
+      <input
+        type="text"
+        [value]="employee.id"
+        disabled
+      >
+    </div>
+
+    <div class="field">
+      <label>Name</label>
+
+      <input
+        type="text"
+        [(ngModel)]="employee.name"
+      >
+    </div>
+
+    <div class="field">
+      <label>Email</label>
+
+      <input
+        type="email"
+        [(ngModel)]="employee.email"
+      >
+    </div>
+
+    <div class="field">
+      <label>Department</label>
+
+      <input
+        type="text"
+        [value]="employee.department"
+        disabled
+      >
+    </div>
+
+    <div class="field">
+      <label>Salary</label>
+
+      <input
+        type="number"
+        [value]="employee.salary"
+        disabled
+      >
+    </div>
+
+    <button
+      type="button"
+      (click)="updateProfile()">
+      Update Profile
+    </button>
+
+  </div>
+
+</div>

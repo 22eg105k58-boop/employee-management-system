@@ -1,0 +1,20 @@
+# IntelliJ IDEA
+.idea/
+*.iml
+
+# Spring Boot / Maven
+**/target/
+
+# Environment / secrets
+.env
+
+# Angular
+**/node_modules/
+**/dist/
+**/.angular/
+
+# OS files
+.DS_Store
+Thumbs.db
+# VS Code
+.vscode/

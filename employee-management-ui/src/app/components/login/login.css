@@ -1,0 +1,44 @@
+.login-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 80vh;
+}
+
+.login-card {
+  width: 350px;
+  padding: 30px;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+}
+
+.login-card h2,
+.login-card h3 {
+  text-align: center;
+}
+
+.login-card div {
+  margin-bottom: 15px;
+}
+
+.login-card label {
+  display: block;
+  margin-bottom: 5px;
+}
+
+.login-card input {
+  width: 100%;
+  padding: 10px;
+  box-sizing: border-box;
+}
+
+.login-card button {
+  width: 100%;
+  padding: 10px;
+  cursor: pointer;
+}
+
+.error {
+  color: red;
+  text-align: center;
+}
