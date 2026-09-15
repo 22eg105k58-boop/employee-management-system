@@ -1,7 +1,11 @@
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { AuthService, LoginResponse } from '../../services/auth';
+
+import {
+  AuthService,
+  LoginResponse
+} from '../../services/auth';
 
 @Component({
   selector: 'app-login',
@@ -15,6 +19,7 @@ export class LoginComponent {
   username = '';
   password = '';
   errorMessage = '';
+  isLoading = false;
 
   constructor(
     private authService: AuthService,
@@ -25,26 +30,73 @@ export class LoginComponent {
 
     this.errorMessage = '';
 
-    this.authService.login(
-      this.username,
-      this.password
-    ).subscribe({
+    if (this.isLoading) {
+      return;
+    }
 
-      next: (response: LoginResponse) => {
+    if (!this.username.trim() ||
+        !this.password.trim()) {
 
-        this.authService.saveLoginData(response);
+      this.errorMessage =
+        'Username and password are required';
 
-        if (response.role === 'ADMIN') {
-          this.router.navigate(['/admin']);
-        } else {
-          this.router.navigate(['/employee']);
+      return;
+    }
+
+    this.isLoading = true;
+
+    this.authService
+      .login(
+        this.username,
+        this.password
+      )
+      .subscribe({
+
+        next: (response: LoginResponse) => {
+
+          this.isLoading = false;
+
+          this.authService.saveLoginData(
+            response,
+            this.username
+          );
+
+          const role =
+            this.authService.getRole();
+
+          if (role === 'ADMIN') {
+
+            this.router.navigate(['/admin']);
+
+          } else if (role === 'EMPLOYEE') {
+
+            this.router.navigate(['/employee']);
+
+          } else {
+
+            this.errorMessage =
+              'Invalid user role';
+          }
+        },
+
+        error: (error) => {
+
+          console.error(
+            'Login error:',
+            error
+          );
+
+          if (error.status === 401) {
+
+            this.errorMessage =
+              'Invalid username or password';
+
+          } else {
+
+            this.errorMessage =
+              'Unable to connect to server';
+          }
         }
-      },
-
-      error: () => {
-        this.errorMessage =
-          'Invalid username or password';
-      }
-    });
+      });
   }
 }

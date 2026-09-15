@@ -1,7 +1,6 @@
 <div class="employee-container">
 
   <div class="employee-header">
-
     <div>
       <h1>Employee Dashboard</h1>
       <p>Welcome, {{ username }}</p>
@@ -12,7 +11,6 @@
       (click)="logout()">
       Logout
     </button>
-
   </div>
 
   <hr>
@@ -21,58 +19,50 @@
     {{ errorMessage }}
   </p>
 
-  <div
-    *ngIf="employee"
-    class="profile-card">
+  <div *ngIf="employee" class="profile-card">
 
     <h2>My Profile</h2>
 
     <div class="field">
       <label>Employee ID</label>
-
       <input
         type="text"
         [value]="employee.id"
-        disabled
-      >
+        disabled>
     </div>
 
     <div class="field">
       <label>Name</label>
-
       <input
         type="text"
         [(ngModel)]="employee.name"
-      >
+        name="profileName"
+        required>
     </div>
 
     <div class="field">
       <label>Email</label>
-
       <input
         type="email"
         [(ngModel)]="employee.email"
-      >
+        name="profileEmail"
+        required>
     </div>
 
     <div class="field">
       <label>Department</label>
-
       <input
         type="text"
         [value]="employee.department"
-        disabled
-      >
+        disabled>
     </div>
 
     <div class="field">
       <label>Salary</label>
-
       <input
         type="number"
         [value]="employee.salary"
-        disabled
-      >
+        disabled>
     </div>
 
     <button
@@ -80,6 +70,58 @@
       (click)="updateProfile()">
       Update Profile
     </button>
+
+    <p *ngIf="profileMessage" class="success">
+      {{ profileMessage }}
+    </p>
+
+  </div>
+
+  <div class="password-card">
+
+    <h2>Change Password</h2>
+
+    <div class="field">
+      <label>Current Password</label>
+      <input
+        type="password"
+        [(ngModel)]="currentPassword"
+        name="currentPassword"
+        autocomplete="current-password">
+    </div>
+
+    <div class="field">
+      <label>New Password</label>
+      <input
+        type="password"
+        [(ngModel)]="newPassword"
+        name="newPassword"
+        minlength="8"
+        autocomplete="new-password">
+    </div>
+
+    <div class="field">
+      <label>Confirm New Password</label>
+      <input
+        type="password"
+        [(ngModel)]="confirmPassword"
+        name="confirmPassword"
+        autocomplete="new-password">
+    </div>
+
+    <button
+      type="button"
+      (click)="changePassword()">
+      Change Password
+    </button>
+
+    <p *ngIf="passwordMessage" class="success">
+      {{ passwordMessage }}
+    </p>
+
+    <p *ngIf="passwordError" class="error">
+      {{ passwordError }}
+    </p>
 
   </div>
 

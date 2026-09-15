@@ -30,8 +30,10 @@
         />
       </div>
 
-      <button type="submit">
-        Login
+      <button
+        type="submit"
+        [disabled]="isLoading">
+        {{ isLoading ? 'Logging in...' : 'Login' }}
       </button>
 
       @if (errorMessage) {

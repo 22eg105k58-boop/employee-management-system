@@ -34,6 +34,8 @@ export class EmployeeList implements OnInit, OnDestroy {
 
   // Department filter
   department = '';
+  errorMessage = '';
+  isLoading = false;
 
   private employeeAddedSubscription!: Subscription;
 
@@ -57,6 +59,9 @@ export class EmployeeList implements OnInit, OnDestroy {
   // Load employees with pagination and filtering
   loadEmployees(): void {
 
+    this.isLoading = true;
+    this.errorMessage = '';
+
     this.employeeService
       .getEmployees(
         this.currentPage,
@@ -66,6 +71,8 @@ export class EmployeeList implements OnInit, OnDestroy {
       .subscribe({
 
         next: (data) => {
+
+          this.isLoading = false;
 
           console.log('Employees received:', data);
 
@@ -82,10 +89,20 @@ export class EmployeeList implements OnInit, OnDestroy {
 
         error: (error) => {
 
+          this.isLoading = false;
+
           console.error(
             'Error loading employees:',
             error
           );
+
+          if (error.status === 403) {
+            this.errorMessage = 'You do not have permission to view employees.';
+          } else {
+            this.errorMessage = 'Unable to load employees.';
+          }
+
+          this.cdr.detectChanges();
 
         }
 
