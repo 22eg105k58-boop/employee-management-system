@@ -2,9 +2,9 @@ package com.example.employee_management.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
+import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.http.HttpMethod;
-
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -40,6 +40,16 @@ public class SecurityConfig {
     public JwtAuthenticationFilter jwtAuthenticationFilter() {
         return new JwtAuthenticationFilter(jwtService);
     }
+    @Bean
+public AuthenticationEntryPoint authenticationEntryPoint() {
+    return (request, response, authException) -> {
+        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        response.setContentType("application/json");
+        response.getWriter().write(
+                "{\"error\":\"Unauthorized - authentication is required\"}"
+        );
+    };
+}
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
@@ -94,7 +104,9 @@ public class SecurityConfig {
                                 SessionCreationPolicy.STATELESS
                         )
                 )
-
+.exceptionHandling(exception -> exception
+    .authenticationEntryPoint(authenticationEntryPoint())
+)
                 .authorizeHttpRequests(auth -> auth
 
                         .requestMatchers(
@@ -104,9 +116,10 @@ public class SecurityConfig {
                         .permitAll()
 
                         .requestMatchers(
-                                "/api/auth/login"
-                        )
-                        .permitAll()
+        "/api/auth/login",
+        "/api/auth/refresh"
+)
+.permitAll()
 
                         .anyRequest()
                         .authenticated()

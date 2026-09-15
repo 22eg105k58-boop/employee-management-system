@@ -12,6 +12,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
@@ -44,28 +45,47 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             String username = jwtService.extractUsername(token);
             String role = jwtService.extractRole(token);
 
-            if (username != null &&
-                    SecurityContextHolder.getContext()
-                            .getAuthentication() == null) {
+            List<String> permissions =
+                    jwtService.extractPermissions(token);
 
-                SimpleGrantedAuthority authority =
-                        new SimpleGrantedAuthority("ROLE_" + role);
+            List<SimpleGrantedAuthority> authorities =
+                    new ArrayList<>();
 
-                UsernamePasswordAuthenticationToken authentication =
-                        new UsernamePasswordAuthenticationToken(
-                                username,
-                                null,
-                                List.of(authority)
-                        );
-
-                SecurityContextHolder
-                        .getContext()
-                        .setAuthentication(authentication);
+            // Add permissions
+            for (String permission : permissions) {
+                authorities.add(
+                        new SimpleGrantedAuthority(permission)
+                );
             }
+
+            // Keep role authority as well
+            authorities.add(
+                    new SimpleGrantedAuthority("ROLE_" + role)
+            );
+
+            UsernamePasswordAuthenticationToken authentication =
+                    new UsernamePasswordAuthenticationToken(
+                            username,
+                            null,
+                            authorities
+                    );
+
+            SecurityContextHolder
+                    .getContext()
+                    .setAuthentication(authentication);
 
         } catch (JwtException | IllegalArgumentException e) {
 
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.setStatus(
+                    HttpServletResponse.SC_UNAUTHORIZED
+            );
+
+            response.setContentType("application/json");
+
+            response.getWriter().write(
+                    "{\"error\":\"Unauthorized - invalid or expired token\"}"
+            );
+
             return;
         }
 

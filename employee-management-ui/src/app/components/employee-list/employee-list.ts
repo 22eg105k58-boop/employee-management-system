@@ -6,6 +6,7 @@ import {
 } from '@angular/core';
 
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { Subscription } from 'rxjs';
 
 import { Employee } from '../../models/employee';
@@ -14,13 +15,25 @@ import { EmployeeService } from '../../services/employee';
 @Component({
   selector: 'app-employee-list',
   standalone: true,
-  imports: [CommonModule],
+  imports: [
+    CommonModule,
+    FormsModule
+  ],
   templateUrl: './employee-list.html',
   styleUrl: './employee-list.css'
 })
 export class EmployeeList implements OnInit, OnDestroy {
 
   employees: Employee[] = [];
+
+  // Pagination
+  currentPage = 0;
+  pageSize = 10;
+  totalPages = 0;
+  totalElements = 0;
+
+  // Department filter
+  department = '';
 
   private employeeAddedSubscription!: Subscription;
 
@@ -31,7 +44,7 @@ export class EmployeeList implements OnInit, OnDestroy {
 
   ngOnInit(): void {
 
-    // Load employees when the page starts
+    // Load first page
     this.loadEmployees();
 
     // Listen for new employees added from the form
@@ -41,28 +54,83 @@ export class EmployeeList implements OnInit, OnDestroy {
       });
   }
 
-  // Get all employees from Spring Boot
+  // Load employees with pagination and filtering
   loadEmployees(): void {
 
-    this.employeeService.getEmployees().subscribe({
+    this.employeeService
+      .getEmployees(
+        this.currentPage,
+        this.pageSize,
+        this.department
+      )
+      .subscribe({
 
-      next: (data) => {
+        next: (data) => {
 
-        console.log('Employees received:', data);
+          console.log('Employees received:', data);
 
-        this.employees = data;
+          // Employee records are inside content
+          this.employees = data.content;
 
-        // Tell Angular to update the table
-        this.cdr.detectChanges();
-      },
+          // Pagination information
+          this.totalPages = data.totalPages;
+          this.totalElements = data.totalElements;
 
-      error: (error) => {
+          // Tell Angular to update the table
+          this.cdr.detectChanges();
+        },
 
-        console.error('Error loading employees:', error);
+        error: (error) => {
 
-      }
+          console.error(
+            'Error loading employees:',
+            error
+          );
 
-    });
+        }
+
+      });
+  }
+
+  // Go to next page
+  nextPage(): void {
+
+    if (this.currentPage < this.totalPages - 1) {
+
+      this.currentPage++;
+
+      this.loadEmployees();
+    }
+  }
+
+  // Go to previous page
+  previousPage(): void {
+
+    if (this.currentPage > 0) {
+
+      this.currentPage--;
+
+      this.loadEmployees();
+    }
+  }
+
+  // Filter employees by department
+  filterByDepartment(): void {
+
+    // Start from first page when applying a filter
+    this.currentPage = 0;
+
+    this.loadEmployees();
+  }
+
+  // Clear department filter
+  clearFilter(): void {
+
+    this.department = '';
+
+    this.currentPage = 0;
+
+    this.loadEmployees();
   }
 
   // Delete employee
@@ -88,7 +156,10 @@ export class EmployeeList implements OnInit, OnDestroy {
 
       error: (error) => {
 
-        console.error('Error deleting employee:', error);
+        console.error(
+          'Error deleting employee:',
+          error
+        );
 
         alert('Failed to delete employee.');
       }
@@ -157,7 +228,10 @@ export class EmployeeList implements OnInit, OnDestroy {
 
       error: (error) => {
 
-        console.error('Error updating employee:', error);
+        console.error(
+          'Error updating employee:',
+          error
+        );
 
         alert('Failed to update employee.');
       }
@@ -169,6 +243,5 @@ export class EmployeeList implements OnInit, OnDestroy {
   ngOnDestroy(): void {
 
     this.employeeAddedSubscription.unsubscribe();
-
   }
 }

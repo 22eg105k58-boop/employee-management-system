@@ -1,6 +1,32 @@
 <h2>Employee List</h2>
 
-<p>Total Employees: {{ employees.length }}</p>
+<!-- Department Filter -->
+<div class="filter-container">
+
+  <input
+    type="text"
+    [(ngModel)]="department"
+    placeholder="Enter department"
+  />
+
+  <button
+    type="button"
+    (click)="filterByDepartment()">
+    Filter
+  </button>
+
+  <button
+    type="button"
+    (click)="clearFilter()">
+    Clear
+  </button>
+
+</div>
+
+<!-- Employee count -->
+<p>
+  Total Employees: {{ totalElements }}
+</p>
 
 <table>
   <thead>
@@ -15,22 +41,63 @@
   </thead>
 
   <tbody>
+
     <tr *ngFor="let employee of employees">
+
       <td>{{ employee.id }}</td>
+
       <td>{{ employee.name }}</td>
+
       <td>{{ employee.email }}</td>
+
       <td>{{ employee.department }}</td>
+
       <td>{{ employee.salary }}</td>
 
       <td>
-        <button type="button" (click)="editEmployee(employee)">
+
+        <button
+          type="button"
+          (click)="editEmployee(employee)">
           Edit
         </button>
 
-        <button type="button" (click)="deleteEmployee(employee.id!)">
+        <button
+          type="button"
+          (click)="deleteEmployee(employee.id!)">
           Delete
         </button>
+
       </td>
+
     </tr>
+
   </tbody>
 </table>
+
+<!-- Pagination -->
+<div class="pagination">
+
+  <button
+    type="button"
+    (click)="previousPage()"
+    [disabled]="currentPage === 0">
+
+    Previous
+
+  </button>
+
+  <span>
+    Page {{ currentPage + 1 }} of {{ totalPages }}
+  </span>
+
+  <button
+    type="button"
+    (click)="nextPage()"
+    [disabled]="currentPage >= totalPages - 1">
+
+    Next
+
+  </button>
+
+</div>

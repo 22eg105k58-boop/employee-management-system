@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Subject } from 'rxjs';
-import { Employee } from '../models/employee';
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { Subject, Observable } from 'rxjs';
+
+import { Employee, EmployeePage } from '../models/employee';
 
 @Injectable({
   providedIn: 'root'
@@ -16,8 +17,28 @@ export class EmployeeService {
 
   constructor(private http: HttpClient) {}
 
-  getEmployees() {
-    return this.http.get<Employee[]>(this.apiUrl);
+  // Get employees with pagination and optional department filter
+  getEmployees(
+    page: number = 0,
+    size: number = 10,
+    department: string = ''
+  ): Observable<EmployeePage> {
+
+    let params = new HttpParams()
+      .set('page', page)
+      .set('size', size);
+
+    if (department.trim()) {
+      params = params.set(
+        'department',
+        department.trim()
+      );
+    }
+
+    return this.http.get<EmployeePage>(
+      this.apiUrl,
+      { params }
+    );
   }
 
   getEmployeeById(id: number) {

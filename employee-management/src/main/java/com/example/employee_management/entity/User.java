@@ -25,6 +25,9 @@ public class User {
     @JoinColumn(name = "employee_id", unique = true)
     private Employee employee;
 
+    @Column(nullable = false)
+    private boolean active = true;
+
     public User() {
     }
 
@@ -35,6 +38,7 @@ public class User {
         this.password = password;
         this.role = role;
         this.employee = employee;
+        this.active = true;
     }
 
     public Long getId() {
@@ -75,5 +79,13 @@ public class User {
 
     public void setEmployee(Employee employee) {
         this.employee = employee;
+    }
+
+    public boolean isActive() {
+        return active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
     }
 }
