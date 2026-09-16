@@ -1,6 +1,7 @@
 package com.example.employee_management.controller;
 
 import com.example.employee_management.entity.User;
+import com.example.employee_management.dto.DepartmentAdminCreateRequest;
 import com.example.employee_management.service.UserService;
 
 import org.springframework.http.ResponseEntity;
@@ -18,6 +19,18 @@ public class UserController {
 
     public UserController(UserService userService) {
         this.userService = userService;
+    }
+
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @PostMapping("/department-admin")
+    public ResponseEntity<String> createDepartmentAdmin(
+            @Valid @RequestBody DepartmentAdminCreateRequest request) {
+
+        User createdUser = userService.createDepartmentAdmin(request);
+
+        return ResponseEntity.ok(
+                "Department admin created successfully: " + createdUser.getUsername());
     }
 
     @PreAuthorize("hasAuthority('EMPLOYEE_UPDATE')")

@@ -18,7 +18,7 @@ export const routes: Routes = [
     component: AdminComponent,
     canActivate: [authGuard],
     data: {
-      role: 'ADMIN'
+      roles: ['ADMIN', 'IT_ADMIN', 'HR_ADMIN']
     }
   },
 

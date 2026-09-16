@@ -1,0 +1,81 @@
+<h2>Add Employee</h2>
+
+<form (ngSubmit)="addEmployee()">
+
+  <div>
+    <label for="name">Name:</label>
+    <input
+      id="name"
+      type="text"
+      name="name"
+      [(ngModel)]="employee.name"
+      required
+    />
+  </div>
+
+  <div>
+    <label for="email">Email:</label>
+    <input
+      id="email"
+      type="email"
+      name="email"
+      [(ngModel)]="employee.email"
+      required
+    />
+  </div>
+
+  <div>
+    <label for="department">Department:</label>
+    <input
+      id="department"
+      type="text"
+      name="department"
+      [(ngModel)]="employee.department"
+      [readonly]="fixedDepartment !== null"
+      required
+    />
+  </div>
+
+  <div>
+    <label for="salary">Salary:</label>
+    <input
+      id="salary"
+      type="number"
+      name="salary"
+      [(ngModel)]="employee.salary"
+      min="0"
+      required
+    />
+  </div>
+
+  <div>
+    <label for="username">Username:</label>
+    <input
+      id="username"
+      type="text"
+      name="username"
+      [(ngModel)]="employee.username"
+      minlength="4"
+      maxlength="50"
+      required
+    />
+  </div>
+
+  <div>
+    <label for="password">Password:</label>
+    <input
+      id="password"
+      type="password"
+      name="password"
+      [(ngModel)]="employee.password"
+      minlength="8"
+      maxlength="100"
+      required
+    />
+  </div>
+
+  <button type="submit">
+    Add Employee
+  </button>
+
+</form>

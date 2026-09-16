@@ -31,6 +31,7 @@
       type="text"
       name="department"
       [(ngModel)]="employee.department"
+      [readonly]="fixedDepartment !== null"
       required
     />
   </div>
@@ -42,6 +43,33 @@
       type="number"
       name="salary"
       [(ngModel)]="employee.salary"
+      min="0"
+      required
+    />
+  </div>
+
+  <div>
+    <label for="username">Username:</label>
+    <input
+      id="username"
+      type="text"
+      name="username"
+      [(ngModel)]="employee.username"
+      minlength="4"
+      maxlength="50"
+      required
+    />
+  </div>
+
+  <div>
+    <label for="password">Password:</label>
+    <input
+      id="password"
+      type="password"
+      name="password"
+      [(ngModel)]="employee.password"
+      minlength="8"
+      maxlength="100"
       required
     />
   </div>

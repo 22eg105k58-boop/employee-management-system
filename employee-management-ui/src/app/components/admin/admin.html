@@ -3,7 +3,7 @@
   <div class="admin-header">
 
     <div>
-      <h1>Admin Dashboard</h1>
+      <h1>{{ dashboardTitle }}</h1>
       <p>Welcome, {{ username }}</p>
     </div>
 
@@ -20,6 +20,40 @@
   <app-employee-form></app-employee-form>
 
   <hr>
+
+  <section *ngIf="role === 'ADMIN'" class="admin-creation">
+    <h2>Create Department Admin</h2>
+    <p>Only the global ADMIN can create department administrators.</p>
+
+    <form (ngSubmit)="createDepartmentAdmin()">
+      <label>Name:</label>
+      <input type="text" name="adminName" [(ngModel)]="adminName" required />
+
+      <label>Email:</label>
+      <input type="email" name="adminEmail" [(ngModel)]="adminEmail" required />
+
+      <label>Department:</label>
+      <select name="adminDepartment" [(ngModel)]="adminDepartment" required>
+        <option value="IT">IT</option>
+        <option value="HR">HR</option>
+        <option value="Finance">Finance</option>
+      </select>
+
+      <label>Username:</label>
+      <input type="text" name="adminUsername" [(ngModel)]="adminUsername" minlength="4" required />
+
+      <label>Password:</label>
+      <input type="password" name="adminPassword" [(ngModel)]="adminPassword" minlength="8" required />
+
+      <button type="submit">Create Department Admin</button>
+    </form>
+
+    <p *ngIf="adminMessage" class="success">{{ adminMessage }}</p>
+    <p *ngIf="adminError" class="error">{{ adminError }}</p>
+  </section>
+
+  <hr>
+
 
   <app-employee-list></app-employee-list>
 

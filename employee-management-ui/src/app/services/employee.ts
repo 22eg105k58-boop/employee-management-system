@@ -3,6 +3,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Subject, Observable } from 'rxjs';
 
 import { Employee, EmployeePage } from '../models/employee';
+import { EmployeeCreateRequest } from '../models/employee-create';
 
 @Injectable({
   providedIn: 'root'
@@ -47,7 +48,7 @@ export class EmployeeService {
     );
   }
 
-  createEmployee(employee: Employee) {
+  createEmployee(employee: EmployeeCreateRequest) {
     return this.http.post<Employee>(
       this.apiUrl,
       employee

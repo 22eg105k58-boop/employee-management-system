@@ -21,72 +21,64 @@ public class DepartmentAuthorizationService {
         this.employeeRepository = employeeRepository;
     }
 
+    /**
+     * ADMIN is global. department administrators are restricted to their
+     * configured department. Other roles are handled by permissions.
+     */
     public boolean canAccessEmployee(
             Authentication authentication,
             Long employeeId) {
 
-        // Get currently logged-in user
-        String username = authentication.getName();
+        User currentUser = getCurrentUser(authentication);
+        String allowedDepartment = getAllowedDepartment(currentUser);
 
-        User currentUser = userRepository.findByUsername(username)
-                .orElseThrow(() ->
-                        new RuntimeException("User not found"));
+        // Global ADMIN can access every department.
+        if (allowedDepartment == null) {
+            return currentUser.getRole() == Role.ADMIN;
+        }
 
-        // Non-admin users are handled by the existing
-        // permission-based security rules.
-        if (currentUser.getRole() != Role.ADMIN) {
+        Employee targetEmployee = employeeRepository.findById(employeeId)
+                .orElseThrow(() -> new RuntimeException("Employee not found"));
+
+        return sameDepartment(
+                allowedDepartment,
+                targetEmployee.getDepartment());
+    }
+
+    public boolean canCreateEmployee(
+            Authentication authentication,
+            String department) {
+
+        User currentUser = getCurrentUser(authentication);
+        String allowedDepartment = getAllowedDepartment(currentUser);
+
+        // Global ADMIN can create an employee in any department.
+        if (currentUser.getRole() == Role.ADMIN) {
             return true;
         }
 
-        // Get the admin's employee profile
-        if (currentUser.getEmployee() == null) {
-            return false;
-        }
-
-        String adminDepartment =
-                currentUser.getEmployee().getDepartment();
-
-        // Get target employee
-        Employee targetEmployee =
-                employeeRepository.findById(employeeId)
-                        .orElseThrow(() ->
-                                new RuntimeException(
-                                        "Employee not found"));
-
-        String targetDepartment =
-                targetEmployee.getDepartment();
-
-        // Admin can access only the same department
-        return adminDepartment != null
-                && targetDepartment != null
-                && adminDepartment.equalsIgnoreCase(targetDepartment);
-    }
-    public boolean canCreateEmployee(
-        Authentication authentication,
-        String department) {
-
-    String username = authentication.getName();
-
-    User currentUser = userRepository.findByUsername(username)
-            .orElseThrow(() ->
-                    new RuntimeException("User not found"));
-
-    // Non-admin users keep existing behavior
-    if (currentUser.getRole() != Role.ADMIN) {
-        return true;
+        // Department administrators can create only in their own department.
+        return allowedDepartment != null
+                && sameDepartment(allowedDepartment, department);
     }
 
-    // Admin must have an employee profile
-    if (currentUser.getEmployee() == null) {
-        return false;
+    private User getCurrentUser(Authentication authentication) {
+        return userRepository.findByUsername(authentication.getName())
+                .orElseThrow(() -> new RuntimeException("User not found"));
     }
 
-    String adminDepartment =
-            currentUser.getEmployee().getDepartment();
+    private String getAllowedDepartment(User user) {
+        return switch (user.getRole()) {
+            case IT_ADMIN -> "IT";
+            case HR_ADMIN -> "HR";
+            case FINANCE_ADMIN -> "Finance";
+            case ADMIN, EMPLOYEE -> null;
+        };
+    }
 
-    // Admin can create only within their department
-    return adminDepartment != null
-            && department != null
-            && adminDepartment.equalsIgnoreCase(department);
-}
+    private boolean sameDepartment(String first, String second) {
+        return first != null
+                && second != null
+                && first.equalsIgnoreCase(second);
+    }
 }

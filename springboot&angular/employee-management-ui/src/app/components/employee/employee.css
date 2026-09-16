@@ -1,0 +1,53 @@
+.employee-container {
+  padding: 30px;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.employee-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.employee-header button,
+.profile-card button,
+.password-card button {
+  padding: 10px 20px;
+  cursor: pointer;
+}
+
+.profile-card,
+.password-card {
+  width: 450px;
+  max-width: 100%;
+  padding: 25px;
+  margin-bottom: 25px;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  box-sizing: border-box;
+}
+
+.field {
+  margin-bottom: 15px;
+}
+
+.field label {
+  display: block;
+  margin-bottom: 5px;
+}
+
+.field input {
+  width: 100%;
+  padding: 9px;
+  box-sizing: border-box;
+}
+
+.error {
+  color: red;
+}
+
+.success {
+  color: green;
+  margin-top: 15px;
+}

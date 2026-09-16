@@ -14,7 +14,7 @@ import java.util.List;
 @Service
 public class JwtService {
 
-    @Value("${JWT_SECRET}")
+    @Value("${jwt.secret}")
     private String secret;
 
     @Value("${jwt.access-token-expiration}")

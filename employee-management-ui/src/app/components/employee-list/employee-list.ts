@@ -11,6 +11,7 @@ import { Subscription } from 'rxjs';
 
 import { Employee } from '../../models/employee';
 import { EmployeeService } from '../../services/employee';
+import { AuthService } from '../../services/auth';
 
 @Component({
   selector: 'app-employee-list',
@@ -32,8 +33,9 @@ export class EmployeeList implements OnInit, OnDestroy {
   totalPages = 0;
   totalElements = 0;
 
-  // Department filter
+  // Department filter (available only to the global ADMIN)
   department = '';
+  canFilterByDepartment = false;
   errorMessage = '';
   isLoading = false;
 
@@ -41,10 +43,13 @@ export class EmployeeList implements OnInit, OnDestroy {
 
   constructor(
     private employeeService: EmployeeService,
+    private authService: AuthService,
     private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
+
+    this.canFilterByDepartment = this.authService.getRole() === 'ADMIN';
 
     // Load first page
     this.loadEmployees();
@@ -66,7 +71,7 @@ export class EmployeeList implements OnInit, OnDestroy {
       .getEmployees(
         this.currentPage,
         this.pageSize,
-        this.department
+        this.canFilterByDepartment ? this.department : ''
       )
       .subscribe({
 

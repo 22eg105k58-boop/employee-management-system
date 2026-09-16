@@ -13,7 +13,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -24,15 +26,18 @@ public class EmployeeService {
     private final EmployeeRepository employeeRepository;
     private final AuditService auditService;
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
     public EmployeeService(
             EmployeeRepository employeeRepository,
             AuditService auditService,
-            UserRepository userRepository) {
+            UserRepository userRepository,
+            PasswordEncoder passwordEncoder) {
 
         this.employeeRepository = employeeRepository;
         this.auditService = auditService;
         this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     // =========================
@@ -43,7 +48,14 @@ public class EmployeeService {
         return employeeRepository.save(employee);
     }
 
+    @Transactional
     public Employee createEmployee(EmployeeCreateRequest request) {
+
+        String newUsername = request.getUsername().trim();
+
+        if (userRepository.findByUsername(newUsername).isPresent()) {
+            throw new RuntimeException("Username already exists");
+        }
 
         Employee employee = new Employee();
 
@@ -52,8 +64,18 @@ public class EmployeeService {
         employee.setDepartment(request.getDepartment());
         employee.setSalary(request.getSalary());
 
-        Employee savedEmployee =
-                employeeRepository.save(employee);
+        Employee savedEmployee = employeeRepository.save(employee);
+
+        // Every employee created through the employee-management form
+        // receives a normal EMPLOYEE login account. Department-admin
+        // permissions are never granted through this form.
+        User employeeUser = new User();
+        employeeUser.setUsername(newUsername);
+        employeeUser.setPassword(passwordEncoder.encode(request.getPassword()));
+        employeeUser.setRole(Role.EMPLOYEE);
+        employeeUser.setEmployee(savedEmployee);
+        employeeUser.setActive(true);
+        userRepository.save(employeeUser);
 
         String username = getCurrentUsername();
 
@@ -62,6 +84,7 @@ public class EmployeeService {
                 AuditAction.CREATE_EMPLOYEE,
                 savedEmployee.getId(),
                 "Created employee: " + savedEmployee.getName()
+                        + " with login username: " + newUsername
         );
 
         return savedEmployee;
@@ -96,33 +119,33 @@ public class EmployeeService {
                                 new RuntimeException("User not found"));
 
         /*
-         * ADMIN users can only see employees
-         * belonging to their own department.
+         * ADMIN is global and may optionally filter by department.
          */
         if (currentUser.getRole() == Role.ADMIN) {
-
-            if (currentUser.getEmployee() == null) {
-                throw new RuntimeException(
-                        "Admin is not linked to an employee profile");
+            if (department != null && !department.isBlank()) {
+                return employeeRepository.findByDepartmentIgnoreCase(
+                        department.trim(),
+                        pageable
+                );
             }
 
-            String adminDepartment =
-                    currentUser.getEmployee().getDepartment();
+            return employeeRepository.findAll(pageable);
+        }
 
+        /*
+         * IT_ADMIN and HR_ADMIN are always restricted to their own department.
+         * A department query parameter cannot be used to bypass this scope.
+         */
+        if (currentUser.getRole() == Role.IT_ADMIN) {
             return employeeRepository.findByDepartmentIgnoreCase(
-                    adminDepartment,
+                    "IT",
                     pageable
             );
         }
 
-        /*
-         * Non-admin users keep the existing
-         * department filtering behavior.
-         */
-        if (department != null && !department.isBlank()) {
-
+        if (currentUser.getRole() == Role.HR_ADMIN) {
             return employeeRepository.findByDepartmentIgnoreCase(
-                    department,
+                    "HR",
                     pageable
             );
         }

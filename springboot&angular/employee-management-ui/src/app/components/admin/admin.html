@@ -1,0 +1,26 @@
+<div class="admin-container">
+
+  <div class="admin-header">
+
+    <div>
+      <h1>{{ dashboardTitle }}</h1>
+      <p>Welcome, {{ username }}</p>
+    </div>
+
+    <button
+      type="button"
+      (click)="logout()">
+      Logout
+    </button>
+
+  </div>
+
+  <hr>
+
+  <app-employee-form></app-employee-form>
+
+  <hr>
+
+  <app-employee-list></app-employee-list>
+
+</div>

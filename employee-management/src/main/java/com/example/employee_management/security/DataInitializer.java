@@ -20,54 +20,89 @@ public class DataInitializer {
 
         return args -> {
 
-            // Create ADMIN user
+            // Global administrator. No employee profile is required for ADMIN.
             if (userRepository.findByUsername("admin").isEmpty()) {
-
                 User admin = new User();
-
                 admin.setUsername("admin");
-                admin.setPassword(
-                        passwordEncoder.encode("admin123")
-                );
+                admin.setPassword(passwordEncoder.encode("admin123"));
                 admin.setRole(Role.ADMIN);
-
                 userRepository.save(admin);
             }
 
-            // Create EMPLOYEE user
+            // IT department administrator.
+            if (userRepository.findByUsername("itadmin").isEmpty()) {
+                Employee itEmployee = findOrCreateEmployee(
+                        employeeRepository,
+                        "IT",
+                        "IT Administrator",
+                        "itadmin@example.com",
+                        60000.0
+                );
+
+                User itAdmin = new User();
+                itAdmin.setUsername("itadmin");
+                itAdmin.setPassword(passwordEncoder.encode("itadmin123"));
+                itAdmin.setRole(Role.IT_ADMIN);
+                itAdmin.setEmployee(itEmployee);
+                userRepository.save(itAdmin);
+            }
+
+            // HR department administrator.
+            if (userRepository.findByUsername("hradmin").isEmpty()) {
+                Employee hrEmployee = findOrCreateEmployee(
+                        employeeRepository,
+                        "HR",
+                        "HR Administrator",
+                        "hradmin@example.com",
+                        60000.0
+                );
+
+                User hrAdmin = new User();
+                hrAdmin.setUsername("hradmin");
+                hrAdmin.setPassword(passwordEncoder.encode("hradmin123"));
+                hrAdmin.setRole(Role.HR_ADMIN);
+                hrAdmin.setEmployee(hrEmployee);
+                userRepository.save(hrAdmin);
+            }
+
+            // Normal employee.
             if (userRepository.findByUsername("harsha").isEmpty()) {
-
-                Employee employee;
-
-                if (employeeRepository.findAll().isEmpty()) {
-
-                    employee = new Employee();
-
-                    employee.setName("Harsha");
-                    employee.setEmail("harsha@gmail.com");
-                    employee.setDepartment("IT");
-                    employee.setSalary(50000.0);
-
-                    employee =
-                            employeeRepository.save(employee);
-
-                } else {
-
-                    employee =
-                            employeeRepository.findAll().get(0);
-                }
+                Employee employee = findOrCreateEmployee(
+                        employeeRepository,
+                        "IT",
+                        "Harsha",
+                        "harsha@gmail.com",
+                        50000.0
+                );
 
                 User employeeUser = new User();
-
                 employeeUser.setUsername("harsha");
-                employeeUser.setPassword(
-                        passwordEncoder.encode("harsha123")
-                );
+                employeeUser.setPassword(passwordEncoder.encode("harsha123"));
                 employeeUser.setRole(Role.EMPLOYEE);
                 employeeUser.setEmployee(employee);
-
                 userRepository.save(employeeUser);
             }
         };
+    }
+
+    private Employee findOrCreateEmployee(
+            EmployeeRepository employeeRepository,
+            String department,
+            String name,
+            String email,
+            double salary) {
+
+        return employeeRepository.findAll().stream()
+                .filter(employee -> employee.getEmail() != null
+                        && employee.getEmail().equalsIgnoreCase(email))
+                .findFirst()
+                .orElseGet(() -> {
+                    Employee employee = new Employee();
+                    employee.setName(name);
+                    employee.setEmail(email);
+                    employee.setDepartment(department);
+                    employee.setSalary(salary);
+                    return employeeRepository.save(employee);
+                });
     }
 }
